@@ -4,8 +4,19 @@ My custom scripts.
 ## Summary
 - [scripts](#scripts)
   - [Summary](#summary)
+  - [Usage](#usage)
+    - [Installation](#installation)
   - [Scripts explained](#scripts-explained)
     - [deploy](#deploy)
+
+## Usage
+
+### Installation
+
+```
+$ git clone git@github.com:vorban/scripts.git
+$ scripts/install.sh
+```
 
 ## Scripts explained
 
