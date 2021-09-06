@@ -1,0 +1,30 @@
+#!/bin/sh
+
+ESC="\033["
+BLACK="${ESC}30m"
+RED="${ESC}31m"
+GREEN="${ESC}32m"
+YELLOW="${ESC}33m"
+BLUE="${ESC}34m"
+MAGENTA="${ESC}35m"
+CYAN="${ESC}36m"
+WHITE="${ESC}97m"
+
+if [ $# -eq 0 ]; then
+    echo "usage: ouestce REPOSITORY_NAME"
+    exit 1
+fi
+
+paths=(~/github.com ~/gitlab.com ~/bitbucket.org)
+for path in "${paths[@]}"; do
+    for author in $(ls $path); do
+        for repo in $(ls $path/$author); do
+            if [ $repo == $1 ]; then
+                echo $path/$author/$repo
+                exit 0
+            fi
+        done
+    done
+done
+echo "${RED}Not found.${WHITE}"
+exit 1

@@ -88,7 +88,7 @@ esac
 
 echo "Tagging for environment [${COLOR}$ENVIRONMENT${WHITE}]: -- ${GREEN}$TAG${WHITE} --"
 
-read -p "Continue ? [y/N]" -n 1 -r confirm </dev/tty
+read -p "Continue ? [y/N] " -n 1 -r confirm </dev/tty
 echo
 if [[ ! $confirm =~ ^[Yy]$ ]]; then
     echo "Aborted."
