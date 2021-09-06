@@ -1,0 +1,84 @@
+#!/bin/sh
+
+ESC="\033["
+BLACK="${ESC}30m"
+RED="${ESC}31m"
+GREEN="${ESC}32m"
+YELLOW="${ESC}33m"
+BLUE="${ESC}34m"
+MAGENTA="${ESC}35m"
+CYAN="${ESC}36m"
+WHITE="${ESC}37m"
+
+##### INPUT PARSING #####
+
+# foreach word in inputs
+#     if word and word+1 are of the form "-k|--key value"
+#         set variables accordingly
+#     else
+#         add the value to positional array for later
+#     shift inputs foreach processed word (meaning if 2 words, then $1 = $3 and $2 = $4)
+ENVIRONMENT="release"
+POSITIONAL=()
+while [[ $# -gt 0 ]]; do
+  key="$1"
+
+    case $key in
+        -e|--environment)
+            ENVIRONMENT="$2"
+            shift; shift
+            ;;
+        *)
+            POSITIONAL+=("$1")
+            shift
+            ;;
+    esac
+done
+
+##### MOVE INTO THE DIRECTORY #####
+
+# only if positional arg provided
+if [ "" != "$POSITIONAL" ]; then
+    cd "$POSITIONAL" 2>/dev/null || { echo "${RED}Directory does not exist.${WHITE}"; exit 1; }
+fi
+
+
+# verify directory is a git repo
+if [ "" == "$(git rev-parse --is-inside-work-tree 2>/dev/null)" ]; then
+    echo "${RED}Not a Git repository.${WHITE}"
+    exit 1
+fi
+
+##### PIER IMPORT SPECIFIC CASE #####
+if [[ "pier-import" ==  "${PWD##*/}" && "$ENVIRONMENT" == "release" ]]; then
+    ENVIRONMENT="demo"
+fi
+
+##### GIT STUFF #####
+release_tag=$(git tag | grep release | sort -V | tail -n 1)
+prod_tag=$(git tag | grep prod | sort -V | tail -n 1)
+demo_tag=$(git tag | grep demo | sort -V | tail -n 1)
+
+TAG=$(git tag | grep $ENVIRONMENT | sort -V | tail -n 1)
+TAG="${TAG##*-}"
+TAG=$(($TAG + 1))
+
+##### DEPLOY BY PUSHING TAG #####
+case $ENVIRONMENT in
+    release) COLOR="$YELLOW" ;;
+    demo)    COLOR="$BLUE"   ;;
+    prod)    COLOR="$RED"    ;;
+esac
+
+echo "Tagging for environment [${COLOR}$ENVIRONMENT${WHITE}]: -- ${GREEN}$TAG${WHITE} --"
+read -p "Continue ? [y/N]" -n 1 -r
+echo
+if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+    echo "Aborted."
+    exit 1
+fi
+
+git tag $ENVIRONMENT-$TAG
+git push origin $ENVIRONMENT-$TAG
+
+echo "Done."
