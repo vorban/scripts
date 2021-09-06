@@ -8,7 +8,7 @@ YELLOW="${ESC}33m"
 BLUE="${ESC}34m"
 MAGENTA="${ESC}35m"
 CYAN="${ESC}36m"
-WHITE="${ESC}37m"
+WHITE="${ESC}97m"
 
 SCRIPTPATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 target_folder="/usr/local/bin"
