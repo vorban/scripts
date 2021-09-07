@@ -32,7 +32,7 @@ Params:
 - `<PATH>`, if provided, executes `cd <PATH>`, else uses current working
 directory.
 
-Deploy can take the `<PATH>` from pipe: `echo "folder/project | deploy"`
+Deploy can take the `<PATH>` from pipe: `echo "folder/project" | deploy`
 
 Example:
 ```
