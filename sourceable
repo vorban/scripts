@@ -1,0 +1,17 @@
+#!/bin/sh
+
+# * NOTE: Never return something other than 0 here
+# -> will return from zsh and close the terminal
+
+cdp() {    
+    if [ $# -eq 0 ]; then
+        echo "usage: cdp <REPOSITORY_NAME>"
+    else
+        local path=$(ouestce $1)
+        if [ "" = $path ]; then
+            echo "Project [$1] not found."
+        else
+            cd $path
+        fi
+    fi
+}

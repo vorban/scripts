@@ -13,6 +13,8 @@ WHITE="${ESC}97m"
 SCRIPTPATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 target_folder="/usr/local/bin"
 
+source $SCRIPTPATH/sourceable
+
 pushd "$SCRIPTPATH" >/dev/null 2>&1
 
 for file in $(ls ./scripts); do
@@ -20,5 +22,12 @@ for file in $(ls ./scripts); do
     chmod +x ./scripts/$file
     ln -sf $SCRIPTPATH/scripts/$file $target_folder/$file
 done
+
+echo "- sourcing [${GREEN}sourceable${WHITE}]"
+if [[ "" = $(cat ~/.zshrc | grep "source $SCRIPATH") ]]; then
+    echo "source $SCRIPTPATH/sourceable" >> ~/.zshrc
+fi
+
 echo "Done."
+echo "\nPlease source ${GREEN}.zshrc${WHITE} again."
 popd >/dev/null 2>&1
