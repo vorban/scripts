@@ -24,16 +24,16 @@ function cd_back_on_flag()
 #         set variables accordingly
 #     else
 #         add the value to positional array for later
-#     shift inputs foreach processed word (meaning if 2 words, then $1 = $3 and $2 = $4)
-ENVIRONMENT="release"
+#     shift inputs foreach processed word (if 2 words, then $1 = $3 and $2 = $4)
+ENV="release"
 POSITIONAL=()
 
 while [[ $# -gt 0 ]]; do
   key="$1"
 
     case $key in
-        -e|--environment)
-            ENVIRONMENT="$2"
+        -e|--ENV)
+            ENV="$2"
             shift; shift
             ;;
         *)
@@ -48,7 +48,10 @@ done
 # cd if positional arg or pipe provided
 FLAG_CD_BACK=""
 if [ "" != "$POSITIONAL" ]; then
-    cd "$POSITIONAL" 2>/dev/null || { echo "${RED}Directory [${YELLOW}$POSITIONAL${RED}] does not exist.${WHITE}"; exit 1; }
+    cd "$POSITIONAL" 2>/dev/null || {
+        echo "${RED}Dir. [${YELLOW}$POSITIONAL${RED}] does not exist.${WHITE}"
+        exit 1
+    }
     FLAG_CD_BACK=1
 else
     if [ -p /dev/stdin ]; then
@@ -57,15 +60,18 @@ else
             if [[ $line =~ ^~\/.*$ ]]; then
                 line="${HOME}/${line#"~/"}"
             fi
-            cd $line  || { echo "${RED}Directory [${YELLOW}$line${RED}] does not exist.${WHITE}"; exit 1; }
+            cd $line  || {
+                echo "${RED}Dir. [${YELLOW}$line${RED}] does not exist.${WHITE}"
+                exit 1
+            }
             FLAG_CD_BACK=1
         fi
     fi
 fi
 
 # pier import specific case
-if [[ "pier-import" ==  "${PWD##*/}" && "$ENVIRONMENT" == "release" ]]; then
-    ENVIRONMENT="demo"
+if [[ "pier-import" ==  "${PWD##*/}" && "$ENV" == "release" ]]; then
+    ENV="demo"
 fi
 
 # verify directory is a git repo
@@ -75,18 +81,18 @@ if [ "" == "$(git rev-parse --is-inside-work-tree 2>/dev/null)" ]; then
 fi
 
 ##### GIT STUFF #####
-TAG=$(git tag | grep $ENVIRONMENT | sort -V | tail -n 1)
+TAG=$(git tag | grep $ENV | sort -V | tail -n 1)
 TAG="${TAG##*-}"
 TAG=$(($TAG + 1))
 
 ##### DEPLOY BY PUSHING TAG #####
-case $ENVIRONMENT in
+case $ENV in
     release) COLOR="$YELLOW" ;;
     demo)    COLOR="$BLUE"   ;;
     prod)    COLOR="$RED"    ;;
 esac
 
-echo "Tagging for environment [${COLOR}$ENVIRONMENT${WHITE}]: -- ${GREEN}$TAG${WHITE} --"
+echo "Tagging for env [${COLOR}$ENV${WHITE}]: -- ${GREEN}$TAG${WHITE} --"
 
 read -p "Continue ? [y/N] " -n 1 -r confirm </dev/tty
 echo
@@ -96,8 +102,8 @@ if [[ ! $confirm =~ ^[Yy]$ ]]; then
     exit 1
 fi
 
-git tag $ENVIRONMENT-$TAG
-git push origin $ENVIRONMENT-$TAG
+git tag $ENV-$TAG
+git push origin $ENV-$TAG
 
 cd_back_on_flag
 echo "Done."
